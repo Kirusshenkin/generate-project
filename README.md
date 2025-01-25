@@ -15,12 +15,17 @@ A flexible template for quickly setting up Go projects with different architectu
 - Makefile for task automation
 - Database migrations support
 - Configuration examples
+- Automatic Go installation and version check
 
 ### Requirements
 
-- Go 1.21 or higher
+- Go 1.21 or higher (will be installed automatically if not present)
 - Docker and Docker Compose
 - Make
+
+For automatic Go installation:
+- On macOS: Homebrew (will be prompted to install if not present)
+- On Linux: apt-get or yum package manager
 
 ### Quick Start
 
@@ -38,6 +43,7 @@ chmod +x setup.sh
 
 3. Follow the interactive prompts to configure your project:
 - Choose your language (English/Russian)
+- The script will check and install Go if needed
 - Enter project name
 - Select architecture (Monolith/MVC)
 - Choose required packages
@@ -65,12 +71,17 @@ chmod +x setup.sh
 - Makefile для автоматизации задач
 - Поддержка миграций базы данных
 - Примеры конфигурации
+- Автоматическая установка и проверка версии Go
 
 ### Требования
 
-- Go 1.21 или выше
+- Go 1.21 или выше (будет установлен автоматически при отсутствии)
 - Docker и Docker Compose
 - Make
+
+Для автоматической установки Go:
+- На macOS: Homebrew (будет предложено установить при отсутствии)
+- На Linux: пакетный менеджер apt-get или yum
 
 ### Быстрый старт
 
@@ -88,6 +99,7 @@ chmod +x setup.sh
 
 3. Следуйте интерактивным подсказкам для настройки проекта:
 - Выберите язык (английский/русский)
+- Скрипт проверит и установит Go при необходимости
 - Введите имя проекта
 - Выберите архитектуру (Монолит/MVC)
 - Выберите необходимые пакеты
