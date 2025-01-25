@@ -1,53 +1,99 @@
 #!/bin/bash
 
-echo "Добро пожаловать в настройку вашего проекта на Go!"
-read -p "Введите имя вашего проекта (по умолчанию: my-app): " PROJECT_NAME
+# Установка языка / Language selection
+echo "Choose language / Выберите язык:"
+echo "1. English"
+echo "2. Русский"
+read -p "Enter your choice / Введите ваш выбор [1-2]: " LANGUAGE
+
+if [ "$LANGUAGE" == "2" ]; then
+    # Russian language strings
+    TEXT_WELCOME="Добро пожаловать в настройку проекта на Go!"
+    TEXT_PROJECT_NAME="Введите имя вашего проекта (по умолчанию: my-app): "
+    TEXT_ARCHITECTURE="Выберите архитектуру проекта:"
+    TEXT_MONOLITH="1. Монолит (Monolith)"
+    TEXT_MVC="2. MVC (Model-View-Controller)"
+    TEXT_PACKAGES="Какие пакеты вы хотите установить?"
+    TEXT_PACKAGES_HTTP="HTTP фреймворки:"
+    TEXT_PACKAGES_DB="Работа с базой данных:"
+    TEXT_PACKAGES_LOGGING="Логирование:"
+    TEXT_TOOLS="Хотите добавить следующие инструменты? (y/n)"
+    TEXT_REDIS="Redis (Кэширование): "
+    TEXT_DOCKER="Docker и Docker Compose: "
+    TEXT_FINISH="Проект успешно настроен!"
+    TEXT_ERROR_ARCH="Ошибка: Неверный выбор архитектуры."
+else
+    # English language strings
+    TEXT_WELCOME="Welcome to the Go project setup!"
+    TEXT_PROJECT_NAME="Enter your project name (default: my-app): "
+    TEXT_ARCHITECTURE="Choose project architecture:"
+    TEXT_MONOLITH="1. Monolith"
+    TEXT_MVC="2. MVC (Model-View-Controller)"
+    TEXT_PACKAGES="Which packages would you like to install?"
+    TEXT_PACKAGES_HTTP="HTTP frameworks:"
+    TEXT_PACKAGES_DB="Database tools:"
+    TEXT_PACKAGES_LOGGING="Logging:"
+    TEXT_TOOLS="Do you want to add the following tools? (y/n)"
+    TEXT_REDIS="Redis (Caching): "
+    TEXT_DOCKER="Docker and Docker Compose: "
+    TEXT_FINISH="Project successfully configured!"
+    TEXT_ERROR_ARCH="Error: Invalid architecture choice."
+fi
+
+echo "$TEXT_WELCOME"
+
+# Project name input
+read -p "$TEXT_PROJECT_NAME" PROJECT_NAME
 PROJECT_NAME=${PROJECT_NAME:-my-app}
 
-# Выбор архитектуры
-echo "Выберите архитектуру проекта:"
-echo "1. Монолит (Monolith)"
-echo "2. MVC (Model-View-Controller)"
-read -p "Введите номер архитектуры [1-2]: " ARCHITECTURE
+# Architecture selection
+echo "$TEXT_ARCHITECTURE"
+echo "$TEXT_MONOLITH"
+echo "$TEXT_MVC"
+read -p "Enter your choice [1-2]: " ARCHITECTURE
 
-# Выбор пакетов
-echo "Какие пакеты вы хотите установить?"
-echo "1. gin-gonic/gin (HTTP)"
-echo "2. gorilla/mux (HTTP)"
+# Package selection
+echo "$TEXT_PACKAGES"
+echo "$TEXT_PACKAGES_HTTP"
+echo "1. gin-gonic/gin"
+echo "2. gorilla/mux"
+echo "$TEXT_PACKAGES_DB"
 echo "3. gorm.io/gorm (ORM)"
-echo "4. golang-migrate/migrate (Миграции)"
-echo "5. sirupsen/logrus (Логирование)"
-echo "6. uber-go/zap (Логирование)"
-echo "7. Все вышеперечисленные"
-read -p "Введите номера через запятую: " PACKAGES
+echo "4. golang-migrate/migrate (Migrations)"
+echo "$TEXT_PACKAGES_LOGGING"
+echo "5. sirupsen/logrus"
+echo "6. uber-go/zap"
+echo "7. All of the above"
+read -p "Enter numbers (comma-separated): " PACKAGES
 
-# Выбор инструментов
-echo "Хотите добавить следующие инструменты? (y/n)"
-read -p "Redis (Кэширование): " REDIS
-read -p "Docker Compose (y/n): " DOCKER_COMPOSE
+# Tools selection
+echo "$TEXT_TOOLS"
+read -p "$TEXT_REDIS" REDIS
+read -p "$TEXT_DOCKER" DOCKER
 
-# Генерация структуры
-echo "Создаю проект '$PROJECT_NAME'..."
-mkdir -p "$PROJECT_NAME"
-cd "$PROJECT_NAME" || exit
+# Project generation
+echo "Setting up project '$PROJECT_NAME'..."
 
 case $ARCHITECTURE in
-  1)
-    echo "Выбрана архитектура: Монолит"
-    bash ../scripts/setup_monolith.sh
-    ;;
-  2)
-    echo "Выбрана архитектура: MVC"
-    bash ../scripts/setup_mvc.sh
-    ;;
-  *)
-    echo "Ошибка: Неверный выбор архитектуры."
-    exit 1
-    ;;
+    1)
+        bash scripts/setup_monolith.sh "$PROJECT_NAME"
+        ;;
+    2)
+        bash scripts/setup_mvc.sh "$PROJECT_NAME"
+        ;;
+    *)
+        echo "$TEXT_ERROR_ARCH"
+        exit 1
+        ;;
 esac
 
-bash ../scripts/setup_packages.sh "$PACKAGES"
-bash ../scripts/setup_docker.sh "$REDIS" "$DOCKER_COMPOSE"
-bash ../scripts/setup_linter.sh "$ARCHITECTURE"
+# Install selected packages
+bash scripts/setup_packages.sh "$PACKAGES"
 
-echo "Проект '$PROJECT_NAME' успешно настроен!"
+# Setup Docker if selected
+bash scripts/setup_docker.sh "$REDIS" "$DOCKER"
+
+# Setup linter
+bash scripts/setup_linter.sh
+
+echo "$TEXT_FINISH"
