@@ -1,105 +1,129 @@
 #!/bin/bash
 
-# Установка языка / Language selection
-echo "🌍 Choose language / Выберите язык:"
-echo "1. 🇬🇧 English"
-echo "2. 🇷🇺 Русский"
-read -p "Enter your choice / Введите ваш выбор [1-2]: " LANGUAGE
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
-if [ "$LANGUAGE" == "2" ]; then
-    # Russian language strings
-    TEXT_WELCOME="👋 Добро пожаловать в настройку проекта на Go!"
-    TEXT_PROJECT_NAME="📝 Введите имя вашего проекта (по умолчанию: my-app): "
-    TEXT_ARCHITECTURE="🏗️  Выберите архитектуру проекта:"
-    TEXT_MONOLITH="1. 🏰 Монолит (Monolith)"
-    TEXT_MVC="2. 🎯 MVC (Model-View-Controller)"
-    TEXT_PACKAGES="📦 Какие пакеты вы хотите установить?"
-    TEXT_PACKAGES_HTTP="🌐 HTTP фреймворки:"
-    TEXT_PACKAGES_DB="💾 Работа с базой данных:"
-    TEXT_PACKAGES_LOGGING="📝 Логирование:"
-    TEXT_TOOLS="🛠️  Хотите добавить следующие инструменты? (y/n)"
-    TEXT_REDIS="📊 Redis (Кэширование): "
-    TEXT_DOCKER="🐳 Docker и Docker Compose: "
-    TEXT_FINISH="✨ Проект успешно настроен!"
-    TEXT_ERROR_ARCH="❌ Ошибка: Неверный выбор архитектуры."
-    TEXT_CHECKING_DEPS="🔍 Проверка зависимостей..."
+show_help() {
+    echo "🚀 Go Project Generator"
+    echo
+    echo "Использование:"
+    echo "  gogen [options]"
+    echo
+    echo "Опции:"
+    echo "  --help, -h          Показать эту справку"
+    echo "  --template          Шаблон проекта (rest-api, graphql-api, cli-app, telegram-bot, grpc-service)"
+    echo "  --arch              Архитектура (monolith, mvc, clean-arch, hexagonal)"
+    echo "  --db                База данных (postgres, mongodb, elasticsearch, redis, clickhouse)"
+    echo "  --test              Инструменты тестирования (testify, gomock, httptest, ginkgo)"
+    echo "  --cicd              CI/CD (github-actions, gitlab-ci, jenkins)"
+    echo "  --monitoring        Мониторинг (prometheus, jaeger, elk)"
+    echo "  --docs              Документация (swagger, godoc, markdown)"
+    echo "  --security          Безопасность (jwt, oauth2, cors, rate-limit)"
+    echo "  --config            Конфигурация (yaml, env, etcd, consul)"
+    echo
+    echo "Примеры:"
+    echo "  gogen                                    # Интерактивный режим"
+    echo "  gogen --template rest-api --arch mvc     # Быстрая настройка REST API с MVC"
+    echo "  gogen --help                            # Показать справку"
+}
+
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        --help|-h)
+            show_help
+            exit 0
+            ;;
+        --template)
+            TEMPLATE="$2"
+            shift 2
+            ;;
+        --arch)
+            ARCH="$2"
+            shift 2
+            ;;
+        --db)
+            DB="$2"
+            shift 2
+            ;;
+        --test)
+            TEST="$2"
+            shift 2
+            ;;
+        --cicd)
+            CICD="$2"
+            shift 2
+            ;;
+        --monitoring)
+            MONITORING="$2"
+            shift 2
+            ;;
+        --docs)
+            DOCS="$2"
+            shift 2
+            ;;
+        --security)
+            SECURITY="$2"
+            shift 2
+            ;;
+        --config)
+            CONFIG="$2"
+            shift 2
+            ;;
+        *)
+            echo "❌ Неизвестная опция: $1"
+            show_help
+            exit 1
+            ;;
+    esac
+done
+
+if [ -z "$TEMPLATE" ] && [ -z "$ARCH" ] && [ -z "$DB" ] && [ -z "$TEST" ] && \
+   [ -z "$CICD" ] && [ -z "$MONITORING" ] && [ -z "$DOCS" ] && [ -z "$SECURITY" ] && \
+   [ -z "$CONFIG" ]; then
+    source "$SCRIPT_DIR/scripts/setup_questionnaire.sh"
 else
-    # English language strings
-    TEXT_WELCOME="👋 Welcome to the Go project setup!"
-    TEXT_PROJECT_NAME="📝 Enter your project name (default: my-app): "
-    TEXT_ARCHITECTURE="🏗️  Choose project architecture:"
-    TEXT_MONOLITH="1. 🏰 Monolith"
-    TEXT_MVC="2. 🎯 MVC (Model-View-Controller)"
-    TEXT_PACKAGES="📦 Which packages would you like to install?"
-    TEXT_PACKAGES_HTTP="🌐 HTTP frameworks:"
-    TEXT_PACKAGES_DB="💾 Database tools:"
-    TEXT_PACKAGES_LOGGING="📝 Logging:"
-    TEXT_TOOLS="🛠️  Do you want to add the following tools? (y/n)"
-    TEXT_REDIS="📊 Redis (Caching): "
-    TEXT_DOCKER="🐳 Docker and Docker Compose: "
-    TEXT_FINISH="✨ Project successfully configured!"
-    TEXT_ERROR_ARCH="❌ Error: Invalid architecture choice."
-    TEXT_CHECKING_DEPS="🔍 Checking dependencies..."
+    PROJECT_TEMPLATE="$TEMPLATE"
+    ARCHITECTURE="$ARCH"
+    DATABASES_SELECTED="$DB"
+    TEST_TOOLS_SELECTED="$TEST"
+    CICD_SELECTED="$CICD"
+    MONITORING_SELECTED="$MONITORING"
+    DOC_TOOLS_SELECTED="$DOCS"
+    SECURITY_SELECTED="$SECURITY"
+    CONFIG_SELECTED="$CONFIG"
 fi
 
-echo "$TEXT_WELCOME"
+CURRENT_DIR="$(pwd)"
 
-# Проверка зависимостей
-echo "$TEXT_CHECKING_DEPS"
-source scripts/check_dependencies.sh
+echo "🚀 Генерация проекта..."
+echo "📂 Директория: $CURRENT_DIR"
+echo "📝 Шаблон: $PROJECT_TEMPLATE"
+echo "🏗️  Архитектура: $ARCHITECTURE"
 
-# Project name input
-read -p "$TEXT_PROJECT_NAME" PROJECT_NAME
-PROJECT_NAME=${PROJECT_NAME:-my-app}
-
-# Architecture selection
-echo "$TEXT_ARCHITECTURE"
-echo "$TEXT_MONOLITH"
-echo "$TEXT_MVC"
-read -p "Enter your choice [1-2]: " ARCHITECTURE
-
-# Package selection
-echo "$TEXT_PACKAGES"
-echo "$TEXT_PACKAGES_HTTP"
-echo "1. 🚀 gin-gonic/gin"
-echo "2. 🛣️  gorilla/mux"
-echo "$TEXT_PACKAGES_DB"
-echo "3. 🗄️  gorm.io/gorm (ORM)"
-echo "4. 🔄 golang-migrate/migrate (Migrations)"
-echo "$TEXT_PACKAGES_LOGGING"
-echo "5. 📋 sirupsen/logrus"
-echo "6. ⚡ uber-go/zap"
-echo "7. 🎁 All of the above"
-read -p "Enter numbers (comma-separated): " PACKAGES
-
-# Tools selection
-echo "$TEXT_TOOLS"
-read -p "$TEXT_REDIS" REDIS
-read -p "$TEXT_DOCKER" DOCKER
-
-# Project generation
-echo "🚀 Setting up project '$PROJECT_NAME'..."
-
-case $ARCHITECTURE in
-    1)
-        bash scripts/setup_monolith.sh "$PROJECT_NAME"
+case "$ARCHITECTURE" in
+    *"Монолит"*|*"Monolith"*)
+        bash "$SCRIPT_DIR/scripts/setup_monolith.sh" "$CURRENT_DIR"
         ;;
-    2)
-        bash scripts/setup_mvc.sh "$PROJECT_NAME"
+    *"MVC"*)
+        bash "$SCRIPT_DIR/scripts/setup_mvc.sh" "$CURRENT_DIR"
+        ;;
+    *"Clean"*)
+        bash "$SCRIPT_DIR/scripts/setup_clean_arch.sh" "$CURRENT_DIR"
+        ;;
+    *"Hexagonal"*)
+        bash "$SCRIPT_DIR/scripts/setup_hexagonal.sh" "$CURRENT_DIR"
         ;;
     *)
-        echo "$TEXT_ERROR_ARCH"
+        echo "❌ Неподдерживаемая архитектура: $ARCHITECTURE"
         exit 1
         ;;
 esac
 
-# Install selected packages
-bash scripts/setup_packages.sh "$PACKAGES"
+bash "$SCRIPT_DIR/scripts/setup_packages.sh" "$CURRENT_DIR"
 
-# Setup Docker if selected
-bash scripts/setup_docker.sh "$REDIS" "$DOCKER"
+if [[ "$MONITORING_SELECTED" == *"Prometheus"* ]] || [[ "$DATABASES_SELECTED" == *"Redis"* ]]; then
+    bash "$SCRIPT_DIR/scripts/setup_docker.sh" "y" "y"
+fi
 
-# Setup linter
-bash scripts/setup_linter.sh
+bash "$SCRIPT_DIR/scripts/setup_linter.sh"
 
-echo "$TEXT_FINISH"
+echo "✨ Проект успешно создан в директории: $CURRENT_DIR"
